@@ -1,7 +1,14 @@
+import json
 import subprocess
 from importlib import import_module
 from pathlib import Path
-import shutil
+import uuid
+
+default_settings = {
+    "jupyter.useDefaultConfigForJupyter": False,
+    "jupyter.askForKernelRestart": False,
+    "jupyter.debugJustMyCode": False
+}
 
 
 def run_foreground(cmd: str) -> None:
@@ -27,13 +34,13 @@ def run_foreground(cmd: str) -> None:
     return None
 
 
-def run(command):
+def run(command: str) -> None:
     process = subprocess.run(command.split())
     if process.returncode == 0:
         print(f"Ran: {command}")
         
 def colabcloud(
-    subdomain: str = "amitness",
+    subdomain: str = str(uuid.uuid4()),
     port: int = 9000
 ) -> None:
     """
@@ -51,7 +58,10 @@ def colabcloud(
     drive.mount("/content/drive")
     
     print("Installing python libraries...")
-    run("pip3 install --user flake8 black ipykernel ipywidgets")
+    run("pip3 install --user flake8 black ipywidgets")
+    run("pip3 install -U ipykernel")
+    run("sudo apt install htop -y")
+    
     
     print("Installing code-server...")
     run("curl -fsSL https://code-server.dev/install.sh -O")
@@ -70,7 +80,9 @@ def colabcloud(
     # Symlink settings in drive to code-server
     drive_path = '/content/drive/MyDrive/colab'
     Path(f'{drive_path}/.vscode-settings/').mkdir(parents=True, exist_ok=True)
-    Path(f'{drive_path}/.vscode-settings/settings.json').touch(exist_ok=True)
+    if not Path(f'{drive_path}/.vscode-settings/settings.json').exists():
+        with open(f'{drive_path}/.vscode-settings/settings.json', 'w') as f:
+            json.dump(default_settings, f)
     Path('/dev/shm/.vscode/User/settings.json').unlink(missing_ok=True)
     run(f'ln -s {drive_path}/.vscode-settings/settings.json {user_data_dir}/User/settings.json')
 
