@@ -27,3 +27,10 @@ colabcloud(subdomain='example')
 ```
 
 The editor can be accessed on your chosen URL e.g. [https://example.loca.lt](#).
+
+## Risks
+
+**Note**: At the moment, it looks like the usage of this package in that way is against the [TOS](https://research.google.com/colaboratory/faq.html#limitations-and-restrictions), so please use this at your own risk. This repo is created just as a proof of concept.
+
+**Consequences**: Your notebook's runtime can be terminated randomly without a warning.
+
